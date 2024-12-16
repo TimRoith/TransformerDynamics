@@ -6,7 +6,7 @@ import scienceplots
 #%%
 plt.style.use(['science'])
 
-n = 100
+n = 1
 d = 3
 kwargs = {
     'max_it': 500,
@@ -17,25 +17,28 @@ kwargs = {
     'sigma':0.
 }
 
-mode = 'Id'
+mode = 'PD'
 
 if mode == 'Id':
-    eps = 0
+    D = torch.eye(d)
 else:
-    eps = -1
+    D = torch.eye(d)
+    D[-1,-1] = 10
+    D[-2,-2] = 7.5
 
 
 #%%
-reps = 10
+reps = 30
 x_all = torch.zeros(reps, d)
 idx = -1
 for k in range(reps):
-    D = torch.eye(d)
-    D[-1,-1] = 1 - eps
+    
+    
     x = proj(torch.randn(n ,d))
     #x[..., idx] = torch.abs(x[..., idx])
     x, hist = usa_flow(D, x=x, **kwargs)
     x_all[k, :] = torch.mean(x, dim=0)
+
 
 #%%
 plt.close('all')
@@ -48,16 +51,36 @@ plt.rcParams["axes.prop_cycle"] = plt.cycler("color", plt.cm.viridis(np.linspace
 
 
 X = grid_x_sph(50**2)
-axs.plot_surface(
+XX = X.reshape(-1,d)
+
+Z = torch.exp((XX * (XX@D)).sum(axis=-1)).reshape(X.shape[:2])
+Z = (Z - Z.min())/(Z.max() - Z.min())
+
+fcolors = torch.zeros(X.shape[:2] + (4,))
+lamda = torch.clamp(Z, min=0.1)[:,:,None]
+fcolors[..., :3] = (
+    (1 - lamda) * torch.tensor([1.,1.,0.9])[None,None,:] + 
+    (lamda) * torch.tensor([123, 200, 246])[None,None,:]/255
+)
+
+#fcolors[..., :] *= torch.clamp(Z, min=0.1)[:,:,None]
+fcolors[..., 3]  = Z#torch.exp(Z-1)
+fcolors = torch.clamp(fcolors, max=1, min=0)
+
+
+sf = axs.plot_surface(
     *[X[...,i] for i in range(3)],
     shade=False,
     edgecolor='k',
+    facecolors=fcolors.numpy(),
     linewidth=0.1,
     alpha=.75,
     rstride=1, cstride=1,
-    color='xkcd:ice blue')
+    #color='xkcd:off white'
+    )
+plt.colorbar(sf)
 axs.scatter(*[x_all[:,i] for i in [0,1,2]], alpha=1, 
-            c=cm.Accent([range(reps)])[0,...],
+            c='k',
             marker='o',
             s=30
             )
@@ -65,12 +88,24 @@ axs.set_xlabel("$e_1$")
 axs.set_ylabel("$e_2$")
 axs.set_zlabel("$e_3$")
 
-axs.set_xlim([-1,1])
-axs.set_ylim([-1,1])
-axs.set_zlim([-1,1])
+# for i in range(3):
+#     axs.plot(*[[-1. * (j==i), 1. * (j==i)] for j in range(3)], 
+#              color='k', alpha=0.5)#[-2,2], [0,0],[0,0])
 
-axs.set_axis_off()
+for i in range(3): getattr(axs, 'set_' + chr(120 +i) + 'ticks')(torch.linspace(-1,1,5))
+axs.minorticks_off()
+# axs.plot([0,0], [-2,2], [0,0])
+# axs.plot([0,0],[0,0],[-2,2])
+#axs.set_axis_off()
 axs.axis('square')
+axs.set_xlim([-1.,1.])
+axs.set_ylim([-1.,1.])
+axs.set_zlim([-1.,1.])
+
+
+
+
+
 #%%
 save = False
 if save:
