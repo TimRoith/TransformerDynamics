@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from .utils import integral_scalar_prod, pol2cart, cart2pol, init_phi
+from .utils import integral_scalar_prod, init_phi, weighted_integral_scalar_prod
 from .coordinates import sph2cart, cart2sph, init_sph_normal
 
 
@@ -10,6 +10,24 @@ def proj(x):
 
 def proj_tang(x, y):
     return y - (y*x).sum(-1)[:,None] * x
+
+@torch.no_grad()
+def find_decr_step_size(D, x, tau_max = 10, sgn = 1., max_it = 100, fac=0.5):
+    n = x.shape[0]
+    E = integral_scalar_prod(D)
+    erg_init = E(x)
+    erg_new = torch.inf
+    tau = tau_max
+    
+    for i in range(max_it):
+        x_new = x - sgn * (tau/n) * torch.exp((x @ (D @ x.T))) @ x @ D.T
+        erg_new = E(x_new)
+        if sgn * erg_new < fac * sgn * erg_init:
+            break
+        tau *= 0.9
+    return tau
+        
+    
 
 @torch.no_grad()
 def usa_flow(
@@ -34,6 +52,39 @@ def usa_flow(
             if track_fct is not None: track_fct(x)
         
     return x, hist
+
+class ExponantiatedGD(torch.optim.Optimizer): 
+    def __init__(self, params, lr=0.1): 
+        super().__init__(params, defaults={'lr': lr}) 
+        self.state = dict() 
+        for group in self.param_groups: 
+            for p in group['params']: 
+                self.state[p] = dict() 
+      
+    # Step Method 
+    def step(self): 
+        for group in self.param_groups: 
+            for p in group['params']: 
+                if p.grad is None: 
+                    continue
+
+                v = p.data * torch.exp(-group['lr'] * p.grad.data)
+                p.data = v / v.sum()
+
+def optimizer_density_2D(D, N=1000, max_it = 500, opt_kwargs=None):
+    X = sph2cart(init_phi(N, 2), excl_r=True)
+    opt_kwargs = {} if opt_kwargs is None else opt_kwargs
+    weights = nn.Parameter(torch.ones(N,1)/N)
+    E = weighted_integral_scalar_prod(D, X = X, Y = X)
+    opt = ExponantiatedGD([weights], **opt_kwargs)
+    hist = []
+    for i in range(max_it):
+        opt.zero_grad()
+        loss = E(weights)
+        loss.backward()
+        opt.step()
+        hist.append(loss.item())
+    return weights, hist
 
 
 class OptimDiracs:

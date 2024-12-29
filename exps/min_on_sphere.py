@@ -1,51 +1,58 @@
+#%%
 from tfdy.optim_diracs import usa_flow, proj, OptimDiracs
 from tfdy.utils import grid_x_sph, integral_scalar_prod
-from tfdy.plotting import PlotConf3D
+from tfdy.plotting import PlotConf3D, lazy_view_idx
 import matplotlib.pyplot as plt
 %matplotlib ipympl
 import torch
 
+#%%
 d = 3
+torch.manual_seed(42) # fix seed to get same initial states
 
-mode = 'Id'
+mode = 'Sd'
 
 if mode == 'Id':
-    n = 1
+    n = 400
     D = torch.eye(d)
     cut_off_value_show = -torch.inf
+    tau = 0.1
+elif mode == 'PPd':
+    D = torch.eye(d)
+    D[1, 1] = 0.25
+    n = 400
+    tau = 0.5
+elif mode == 'Sd':
+    D = torch.eye(d)
+    D[1, 1] = 0
+    n = 400
+    tau = 0.75
 else:
     D = torch.eye(d)
-    D[-1,-1] = 4
-    D[-2,-2] = 3
-    cut_off_value_show = -0.8
-    n = 1
+    D[1, 1] = 0
+    D[0, 0] = 0
+    n = 400
+    tau = 0.75
 
-
-
+#%%
 kwargs = {
-    'max_it': 500,
-    'tau': 0.1,
+    'max_it': 20000,
+    'tau': tau,
     'n':n,
     'beta':1,
-    'sgn': -1,
+    'sgn': 1,
     'sigma':0.
 }
 #%%
-reps = 30
-x_all = torch.zeros(reps, d)
-idx = -1
-for k in range(reps):
-    x = proj(torch.randn(n ,d))
-    #x[..., idx] = torch.abs(x[..., idx])
-    x, hist = usa_flow(D, x=x, **kwargs)
-    x_all[k, :] = torch.mean(x, dim=0)
+
+x = proj(torch.randn(n ,d))
+x, hist = usa_flow(D, x=x, **kwargs)
 
 
 #%%
 plt.close('all')
 PC = PlotConf3D()
 PC.init_axs(1)
-
 
 X = grid_x_sph(50**2)
 XX = X.reshape(-1,d)
@@ -63,11 +70,10 @@ fcolors = PC.cmap(Z)
 #fcolors[...,-1] = Z.numpy()#torch.exp(Z-1).numpy()
 PC.plot_sphere(facecolors=fcolors, alpha=.9, zorder=-1)
 
-idx1 = torch.where(x_all[:, -1] >= cut_off_value_show)[0]
-idx2 = torch.where(x_all[:, -1] < cut_off_value_show)[0]
+idx1, idx2 = lazy_view_idx(x, PC.axs[0])
 
-for a, idx in ((0.9, idx1), (0.01, idx2)):
-    PC.axs[0].scatter(*[x_all[idx,i] for i in [0,1,2]],
+for a, idx in ((0.9, idx1), (0.05, idx2)):
+    PC.axs[0].scatter(*[x[idx,i] for i in [0,1,2]],
                 c='k',
                 marker='o',
                 s=30,
@@ -76,5 +82,6 @@ for a, idx in ((0.9, idx1), (0.01, idx2)):
                 )
 #PC.axs[0].view_init(elev=0, azim=-55, roll=0)
 PC.add_colorbar(shrink=0.75,vmin=zmin, vmax=zmax)
-#%%
-PC.save(name=mode)
+PC.save(name='Min'+mode)
+#plt.show()
+# %%

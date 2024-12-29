@@ -1,15 +1,20 @@
-from tfdy.optim_diracs import usa_flow, proj, OptimDiracs
+#%%
+from tfdy.optim_diracs import usa_flow, proj, OptimDiracs, find_decr_step_size
 from tfdy.utils import grid_x_sph, integral_scalar_prod, init_phi
 from tfdy.coordinates import sph2cart
+from tfdy.plotting import PlotConf2D, colored_line
 import matplotlib.pyplot as plt
 import torch
+import tqdm
+import numpy as np
 #%%
 
-n = 8
+n = 4
 d = 2
+tau0 = 5
 kwargs = {
-    'max_it': 20500,
-    'tau': 0.0005,
+    'max_it': 10000,
+    'tau': 0.05,
     'n':n,
     'beta':1,
     'sigma':0.,
@@ -18,26 +23,72 @@ kwargs = {
 
 
 #%%
-D = torch.diag(torch.tensor([1., 3.]))
-x = sph2cart(init_phi(n, d)[...,None] + torch.pi/n, excl_r=True)
-#x[..., idx] = torch.abs(x[..., idx])
-x, hist = usa_flow(D, x=x, **kwargs)
+reps = 1
+num_d = 1
+ds = torch.linspace(0.5, 0.5, num_d)
+tanh_mean = torch.zeros(num_d)
 
+for i in tqdm.trange(num_d):
+    dd = ds[i]
+    D = torch.diag(torch.tensor([1, dd]))
+    xinit = sph2cart(init_phi(n, d) + torch.pi/n, excl_r=True)
 
-print(torch.tanh(D[0,0] * x[:,0]**2)/torch.tanh(D[1,1] * x[:,1]**2))
-print(D[1,1]/D[0,0])
+    for r in range(reps):
+        #x[..., idx] = torch.abs(x[..., idx])
+        x, hist = usa_flow(D, x=xinit.clone(), **kwargs)
+        ev = torch.tanh(D[0,0] * x[:,0]**2)/torch.tanh(D[1,1] * x[:,1]**2)
+        tanh_mean[i] += ev.mean()
+        
+        
+tanh_mean *= 1/reps
+
 #%%
+# from tfdy.coordinates import cart2sph
+# l1 = D[0,0].item()
+# l2 = D[1,1].item()
+
+# mm = l1 - l2
+# nn = l1 + l2
+
+# theta = (1/(mm+nn)) * np.arcsin(-(nn/mm) * np.exp(-2 * l2))# + np.pi/(mm+nn)
+
+# def fun_in_y(y):
+#     a = np.exp(l2)
+#     lhs = a * y**(l1 - l2) - (1/a) * y**(l2 - l1)
+#     rhs = (l1 + l2)/(l2 - l1) * (1/a * y**(l1 + l2) - a * y**(-l1-l2))
+#     return lhs - rhs
+
+# print(fun_in_y(theta))
+
+# phi_guess = np.log(theta)
+
+
+# cart2sph(x, excl_r=True)
+
+#%%
+save_csv = False
+if save_csv:
+    X = torch.stack([ds, tanh_mean], dim=1)
+    np.savetxt('results/tanh_min' + str(kwargs['tau']) + '.csv', X)
+
+
+#%%
+plt.close('all')
+plt.figure()
+plt.plot(ds, tanh_mean)
+plt.plot(ds,ds)
+
+#%%
+plt.figure()
 plt.plot(hist)
 
 
 #%%
-from matplotlib.patches import Circle
 plt.close('all')
-fig, ax = plt.subplots()
-ax.scatter(x[:, 0], x[:, 1])
-#plt.scatter(s[:, 0], s[:, 1])
-ax.add_patch(Circle((0,0), 1, fill =False))
-
-ax.axis('equal');
-ax.set_xlim([-1,1])
-ax.set_ylim([-1,1])
+PC = PlotConf2D(figsize=(4, 4))
+PC.init_axs(1, lims=(-1.1, 1.1))
+PC.plot_colored_circle(D, vmin=0., vmax=10.0, linewidth=10.)
+PC.axs[0].axis('off')
+PC.axs[0].scatter(x[:, 0], x[:, 1], s=400, color='b', zorder=2)
+plt.tight_layout(pad=0., w_pad=0., h_pad=0.)
+# %%
