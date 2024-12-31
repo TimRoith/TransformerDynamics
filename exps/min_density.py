@@ -60,6 +60,7 @@ ax.set_zticks([])
 ax.minorticks_off()
 ax.set_xlabel(r'$\varphi$', labelpad=-15, rotation = 0, fontsize=15)
 ax.set_ylabel(r'$\varepsilon$', labelpad=-15, rotation = 0, fontsize=15)
+ax.set_zlabel(r'Density $m$', labelpad=-15, rotation = 0, fontsize=12)
 
 
 for i in range(Ws.shape[0]):

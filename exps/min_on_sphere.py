@@ -10,7 +10,7 @@ import torch
 d = 3
 torch.manual_seed(42) # fix seed to get same initial states
 
-mode = 'Sd'
+mode = 'PPd'
 
 if mode == 'Id':
     n = 400
@@ -27,12 +27,14 @@ elif mode == 'Sd':
     D[1, 1] = 0
     n = 400
     tau = 0.75
-else:
+elif mode == 'VSd':
     D = torch.eye(d)
     D[1, 1] = 0
     D[0, 0] = 0
     n = 400
     tau = 0.75
+else:
+    raise ValueError('Unknown mode')
 
 #%%
 kwargs = {
@@ -52,7 +54,7 @@ x, hist = usa_flow(D, x=x, **kwargs)
 #%%
 plt.close('all')
 PC = PlotConf3D()
-PC.init_axs(1)
+PC.init_axs(1, labelpad=-10, show_ticks=False, axlabelfontsize=25)
 
 X = grid_x_sph(50**2)
 XX = X.reshape(-1,d)
@@ -81,7 +83,9 @@ for a, idx in ((0.9, idx1), (0.05, idx2)):
                 alpha=a,
                 )
 #PC.axs[0].view_init(elev=0, azim=-55, roll=0)
-PC.add_colorbar(shrink=0.75,vmin=zmin, vmax=zmax)
+cbar = PC.add_colorbar(shrink=0.75,vmin=zmin, vmax=zmax, 
+                orientation='horizontal', pad=-0.,)
+cbar.ax.tick_params(labelsize=18) 
 PC.save(name='Min'+mode)
 #plt.show()
 # %%

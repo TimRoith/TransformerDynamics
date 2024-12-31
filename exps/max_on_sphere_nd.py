@@ -17,17 +17,22 @@ kwargs = {
     'sigma':0.
 }
 
-mode = 'NonId'
+mode = 'NonId2'
 
 if mode == 'Id':
     torch.manual_seed(142)
     D = -torch.eye(d)
     reps = 6
-else:
-    D = torch.eye(d)
+elif mode == 'NonId':
+    D = -torch.eye(d)
     D[-1,-1] = -4
     D[-2,-2] = -3
     reps = 100
+elif mode == 'NonId2':
+    D = -torch.eye(d)
+    D[-1,-1] = 0
+    D[-2,-2] = 0
+    reps = 10
     
 xall = []
 csall = []

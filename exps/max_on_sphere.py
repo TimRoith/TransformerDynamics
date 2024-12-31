@@ -7,7 +7,7 @@ import torch
 
 d = 3
 
-mode = 'Id'
+mode = 'NonId'
 
 if mode == 'Id':
     n = 1

@@ -245,7 +245,8 @@ class PlotConf2D(PlotConf):
 
 class PlotConf3D(PlotConf):
     
-    def add_ax(self, n, computed_zorder=False):
+    def add_ax(self, n, computed_zorder=False, ticks=True, show_ticks = False, 
+               labelpad = -10, num_ticks = 3, axlabelfontsize=25):
         self.axs.append(self.fig.add_subplot(n, 
                                              projection='3d', 
                                              computed_zorder=computed_zorder
@@ -254,25 +255,35 @@ class PlotConf3D(PlotConf):
         self.axs[-1].axis('square')
         for i in range(3): 
             pre = 'set_' + chr(120 + i)
-            getattr(self.axs[-1], pre + 'ticks')(torch.linspace(-1,1,5))
+            if ticks:
+                getattr(self.axs[-1], pre + 'ticks')(torch.linspace(-1,1,num_ticks))
+            else:
+                getattr(self.axs[-1], pre + 'ticks')([])
+
+            if not show_ticks:
+                getattr(self.axs[-1], pre + 'ticklabels')('')
+
+
             getattr(self.axs[-1], pre + 'label')('$z_' + str(i + 1) + '$', 
-                                                 fontsize=12, labelpad=0)
+                                                 fontsize=axlabelfontsize, labelpad=labelpad)
             getattr(self.axs[-1], pre + 'lim')([-1., 1.])
 
         self.axs[-1].minorticks_off()
         
         
-    def init_axs(self, n, computed_zorder=False):
-        for i in range(n): self.add_ax(100 + 10 * n + (i+1), 
-                                       computed_zorder=computed_zorder)
+    def init_axs(self, n, **kwargs):
+        for i in range(n): self.add_ax(100 + 10 * n + (i+1), **kwargs)
         
     def plot_sphere(self, idx=0, **kwargs):
         plot_sphere(self.axs[idx], **kwargs)
         
-    def add_colorbar(self, idx=0, vmin=0, vmax=1, **kwargs):
+    def add_colorbar(self, idx=0, vmin=0, vmax=1, labelsize=18, 
+                     **kwargs):
         norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
         sm = plt.cm.ScalarMappable(cmap=self.cmap, norm=norm)
-        plt.colorbar(sm, ax=self.axs[idx], **kwargs)
+        cbar = plt.colorbar(sm, ax=self.axs[idx], **kwargs)
+        cbar.ax.tick_params(labelsize=labelsize) 
+        return cbar
 
 def fill_between_3d(ax,x1,y1,z1,x2,y2,z2,mode=1,c='steelblue',alpha=0.6, zorder=0):
     
