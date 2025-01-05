@@ -3,14 +3,14 @@ from tfdy.optim_diracs import usa_flow, proj, OptimDiracs
 from tfdy.utils import grid_x_sph, integral_scalar_prod
 from tfdy.plotting import PlotConf3D, lazy_view_idx
 import matplotlib.pyplot as plt
-%matplotlib ipympl
+#%matplotlib ipympl
 import torch
 
 #%%
 d = 3
 torch.manual_seed(42) # fix seed to get same initial states
 
-mode = 'PPd'
+mode = 'VSd'
 
 if mode == 'Id':
     n = 400
@@ -69,23 +69,23 @@ else:
     Z/=zmax
 
 fcolors = PC.cmap(Z)
-#fcolors[...,-1] = Z.numpy()#torch.exp(Z-1).numpy()
-PC.plot_sphere(facecolors=fcolors, alpha=.9, zorder=-1)
+ps = PC.plot_sphere(facecolors=fcolors, alpha=.9, zorder=-1)
 
 idx1, idx2 = lazy_view_idx(x, PC.axs[0])
-
+scs = []
 for a, idx in ((0.9, idx1), (0.05, idx2)):
-    PC.axs[0].scatter(*[x[idx,i] for i in [0,1,2]],
-                c='k',
-                marker='o',
-                s=30,
-                linewidths=0.4,
-                alpha=a,
-                )
+    scs.append(
+        PC.axs[0].scatter(
+            *[x[idx,i] for i in [0,1,2]],
+            c='k',
+            marker='o',
+            s=30,
+            linewidths=0.4,
+            alpha=a,
+            )
+        )
 #PC.axs[0].view_init(elev=0, azim=-55, roll=0)
 cbar = PC.add_colorbar(shrink=0.75,vmin=zmin, vmax=zmax, 
                 orientation='horizontal', pad=-0.,)
 cbar.ax.tick_params(labelsize=18) 
 PC.save(name='Min'+mode)
-#plt.show()
-# %%

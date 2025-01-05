@@ -2,12 +2,12 @@ from tfdy.optim_diracs import usa_flow, proj, OptimDiracs
 from tfdy.utils import grid_x_sph, integral_scalar_prod
 from tfdy.plotting import PlotConf3D
 import matplotlib.pyplot as plt
-%matplotlib ipympl
+#%matplotlib ipympl
 import torch
 
 d = 3
 
-mode = 'NonId'
+mode = 'Id'
 
 if mode == 'Id':
     n = 1
@@ -75,6 +75,7 @@ for a, idx in ((0.9, idx1), (0.01, idx2)):
                 alpha=a,
                 )
 #PC.axs[0].view_init(elev=0, azim=-55, roll=0)
-PC.add_colorbar(shrink=0.75,vmin=zmin, vmax=zmax)
+cb = PC.add_colorbar(shrink=0.75,vmin=zmin, vmax=zmax)
 #%%
 PC.save(name=mode)
+    

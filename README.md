@@ -1,3 +1,11 @@
+
+<p align="middle">
+    <img src="exps/results/Animations/MinA.gif" alt="Figure 1a" width="100"/>
+    <img src="exps/results/Animations/MinB.gif" alt="Figure 1a" width="100"/>
+    <img src="exps/results/Animations/MinC.gif" alt="Figure 1a" width="100"/>
+    <img src="exps/results/Animations/MinD.gif" alt="Figure 1a" width="100"/>
+<p/>
+
 # Transformer Dynamics
 
 The code in this repository reproduces the experiments in the paper "Analysis of mean-field models arising from self-attention dynamics in transformer architectures with layer normalization" by Martin Burger, Samira Kabri, Yury Korolev, Tim Roith, and Lukas Weigand.

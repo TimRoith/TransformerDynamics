@@ -174,7 +174,7 @@ def plot_sphere(ax, X=None, **kwargs):
                'linewidth':0.1}
     dkwargs.update(kwargs)
     
-    ax.plot_surface(
+    return ax.plot_surface(
         *[X[...,i] for i in range(3)],
         **dkwargs
         )
@@ -275,7 +275,7 @@ class PlotConf3D(PlotConf):
         for i in range(n): self.add_ax(100 + 10 * n + (i+1), **kwargs)
         
     def plot_sphere(self, idx=0, **kwargs):
-        plot_sphere(self.axs[idx], **kwargs)
+        return plot_sphere(self.axs[idx], **kwargs)
         
     def add_colorbar(self, idx=0, vmin=0, vmax=1, labelsize=18, 
                      **kwargs):
