@@ -7,8 +7,8 @@ __pycache__/
 *.so
 
 # images
-*.pdf
-*.png
+#*.pdf
+#*.png
 *.npy
 
 # slurm
