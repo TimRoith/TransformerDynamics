@@ -21,7 +21,6 @@ kwargs = {
     'sgn':1
 }
 
-
 #%%
 reps = 1
 num_d = 1
@@ -41,29 +40,6 @@ for i in tqdm.trange(num_d):
         
         
 tanh_mean *= 1/reps
-
-#%%
-# from tfdy.coordinates import cart2sph
-# l1 = D[0,0].item()
-# l2 = D[1,1].item()
-
-# mm = l1 - l2
-# nn = l1 + l2
-
-# theta = (1/(mm+nn)) * np.arcsin(-(nn/mm) * np.exp(-2 * l2))# + np.pi/(mm+nn)
-
-# def fun_in_y(y):
-#     a = np.exp(l2)
-#     lhs = a * y**(l1 - l2) - (1/a) * y**(l2 - l1)
-#     rhs = (l1 + l2)/(l2 - l1) * (1/a * y**(l1 + l2) - a * y**(-l1-l2))
-#     return lhs - rhs
-
-# print(fun_in_y(theta))
-
-# phi_guess = np.log(theta)
-
-
-# cart2sph(x, excl_r=True)
 
 #%%
 save_csv = False

@@ -32,6 +32,3 @@ PC.axs[0].scatter(x[:, 0], x[:, 1], s=400, color='b', zorder=2)
 
 save = False
 if save: PC.save()
-#%%
-#plt.figure()
-#plt.plot(hist)
