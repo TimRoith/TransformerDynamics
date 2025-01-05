@@ -53,7 +53,7 @@ The code that produces the figures and results in the paper is located in the ``
     <img src="exps/results/MinId.png" alt="Figure 3a" width="300"/>
     <img src="exps/results/MinPPd.png" alt="Figure 3b" width="300"/>
     <img src="exps/results/MinSd.png" alt="Figure 3c" width="300"/>
-    <img src="exps/results/MinVSD.png" alt="Figure 3d" width="300"/>
+    <img src="exps/results/MinVSd.png" alt="Figure 3d" width="300"/>
 <p/>
 
 * ```four_part_system```: This file produces the results for Figure 4 in the paper. We consider a four particle system and show that the final state the system converges to, has the form derived in the paper. The results are stored to ```results/tanh_min<tau>.csv```, where ```<tau>``` is the value of the parameter $\tau$ used in the simulation. The actual figure was produced via LaTeX in the paper. Furthermore, the end of the file is used to produce the illustrative circles on the right side of Figure 4 in the paper.
