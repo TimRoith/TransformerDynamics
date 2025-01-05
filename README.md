@@ -68,13 +68,8 @@ The code that produces the figures and results in the paper is located in the ``
 * ```exps\max_on_sphere_nd.py```: This file produces the results for Figure 6 in the paper. It illustrates the maximizers for negative definite matrices in $n=3$ dimensions.
 
 <p align="middle">
-    <img src="exps/results/MaxIdND.png" alt="Figure 6a" width="300"/>
-    <img src="exps/results/MaxNonIdND.png" alt="Figure 6b" width="300"/>
+    <img src="exps/results/MaxIdNd.png" alt="Figure 6a" width="300"/>
+    <img src="exps/results/MaxNonIdNd.png" alt="Figure 6b" width="300"/>
 <p/>
 
 * ```exps\max_on_sphere_id.py```: This file produces the illustration in Figure 7 in the paper. It shows the energies for certain particle states when varying the matrix $D$. The results are stored to the file ```maxid.csv```, where the actual figure was produced via LaTeX in the paper. 
-
-
-
-
-
