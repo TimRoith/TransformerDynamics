@@ -1,9 +1,9 @@
 
 <p align="middle">
-    <img src="exps/results/Animations/MinA.gif" alt="Figure 1a" width="100"/>
-    <img src="exps/results/Animations/MinB.gif" alt="Figure 1a" width="100"/>
-    <img src="exps/results/Animations/MinC.gif" alt="Figure 1a" width="100"/>
-    <img src="exps/results/Animations/MinD.gif" alt="Figure 1a" width="100"/>
+    <img src="exps/results/Animations/MinA.gif" alt="Figure 1a" width="150"/>
+    <img src="exps/results/Animations/MinB.gif" alt="Figure 1a" width="150"/>
+    <img src="exps/results/Animations/MinC.gif" alt="Figure 1a" width="150"/>
+    <img src="exps/results/Animations/MinD.gif" alt="Figure 1a" width="150"/>
 <p/>
 
 # Transformer Dynamics
